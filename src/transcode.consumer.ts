@@ -11,5 +11,8 @@ export class TranscodeConsumer {
     async transcode(job: Job<unknown>) {
         this.logger.log(JSON.stringify(job));
         this.logger.log('Data: ', job.data);
+
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), 8000));
+        this.logger.log(`transcode completed for job: ${job.id}`);
     }
 }

@@ -4,14 +4,20 @@ import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bull';
 import { TRANSCODE_QUEUE } from './constants';
 import { TranscodeConsumer } from './transcode.consumer';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      }
+    ConfigModule.forRoot(),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+        }
+      }),
+      inject: [ConfigService]
     }),
     BullModule.registerQueue({
       name: TRANSCODE_QUEUE
